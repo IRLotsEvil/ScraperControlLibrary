@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="ScraperControlLibrary.NumberInput"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ScraperControlLibrary"
+             xmlns:system="clr-namespace:System;assembly=mscorlib"
+             mc:Ignorable="d" 
+             d:DesignHeight="24" d:DesignWidth="100" Background="White">
+    <Grid>
+        <Grid.Resources>
+            <RelativeSource x:Key="src" Mode="FindAncestor" AncestorType="local:NumberInput"/>
+        </Grid.Resources>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="759*"/>
+            <ColumnDefinition Width="20"/>
+        </Grid.ColumnDefinitions>
+        <TextBox BorderThickness="0" x:Name="Input" VerticalContentAlignment="Center" Padding="2,0" Background="Transparent">
+            <TextBox.Text>
+                <Binding Path="InputValue" RelativeSource="{StaticResource src}" NotifyOnSourceUpdated="True" NotifyOnTargetUpdated="True" UpdateSourceTrigger="PropertyChanged" Converter="{x:Static local:NumberInput.ToDouble}" Mode="TwoWay">
+                    <Binding.ValidationRules>
+                        <local:BoxChecker/>
+                    </Binding.ValidationRules>
+                </Binding>
+            </TextBox.Text>
+        </TextBox>
+        <Grid Grid.Column="1">
+            <Grid.DataContext>
+                <Binding RelativeSource="{StaticResource src}"/>
+            </Grid.DataContext>
+            <Grid.Resources>
+                <Canvas x:Key="arrow" Width="10" Height="4">
+                    <Polygon Points="0,4 5,0 10,4" Fill="Black"/>
+                </Canvas>
+            </Grid.Resources>
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button Command="{Binding Increment}" BorderThickness="0" Background="White" IsEnabled="{Binding IsEnabled}">
+                <Button.CommandParameter>
+                    <system:Boolean>True</system:Boolean>
+                </Button.CommandParameter>
+                <Canvas Width="10" Height="4">
+                    <Polygon Points="0,4 5,0 10,4" Fill="Black"/>
+                </Canvas>
+            </Button>
+            <Button Content="{Binding Source={StaticResource arrow}}" Grid.Row="1" RenderTransformOrigin="0.5,0.5" Command="{Binding Increment}" BorderThickness="0" Background="White" IsEnabled="{Binding IsEnabled}">
+                <Button.RenderTransform>
+                    <TransformGroup>
+                        <RotateTransform Angle="180"/>
+                    </TransformGroup>
+                </Button.RenderTransform>
+            </Button>
+        </Grid>
+    </Grid>
+</UserControl>
