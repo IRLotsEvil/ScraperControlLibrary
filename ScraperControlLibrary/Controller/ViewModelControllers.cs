@@ -10,6 +10,8 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Text.Json;
+using ScraperControlLibrary.Controller;
 
 namespace ScraperControlLibrary
 {
@@ -175,15 +177,13 @@ namespace ScraperControlLibrary
         public BindingBase Binding { get; set; }
         public DependencyProperty Attached { get; set; }
     }
-    public class Modal : ViewModel
+    public class ModalController : ViewModel
     {
         public GridLength Width { get => Get(); set => Set(value, new GridLength(600, GridUnitType.Pixel)); }
         public GridLength Height { get => Get(); set => Set(value, new GridLength(300, GridUnitType.Pixel)); }
         public object Content { get => Get(); set => Set(value); }
         public bool CanClose { get => Get(); set => Set(value, true); }
         public object Additional { get => Get(); set => Set(value); }
-
-        public bool IsUpdateLayerOpen { get => Get(); set => Set(value); }
 
         public void ShowMessage(string title, string message, bool canclose = true, double width = 240, double height = 100)
         {
@@ -207,153 +207,35 @@ namespace ScraperControlLibrary
             Width = new GridLength(500, GridUnitType.Pixel);
             Height = new GridLength(300, GridUnitType.Pixel);
         }
-
-        public RelayCommand CloseLayer => new(x =>
-        {
-            Name = null;
-            Content = null;
-            Additional = null;
-        });
-        public RelayCommand AddEditViewModel => new(x => ShowAddEdit(x));
-        public RelayCommand NewSiteProfile => new(x => ShowAddEdit(typeof(ScraperSiteProfile)));
-        public RelayCommand NewSearchProfile => new(x => ShowAddEdit(typeof(ScraperSearchProfile), x));
-        public RelayCommand NewStringTemplateVariable => new(x => ShowAddEdit(new TemplateVariable(VariableType.String), x));
-        public RelayCommand NewBooleanTemplateVariable => new(x => ShowAddEdit(new TemplateVariable(VariableType.Boolean), x));
-        public RelayCommand NewIncrementalTemplateVariable => new(x => ShowAddEdit(new TemplateVariable(VariableType.Incremental), x));
-        public RelayCommand<ViewModel> DeleteItem => new(x => x.Delete());
-        public RelayCommand<ScraperSearchProfile> NewCollectionNode => new(x => ShowAddEdit(typeof(QueryCollectionNode), x));
-        public RelayCommand OpenUpdateLayer => new(x =>
-        {
-            if (IsUpdateLayerOpen)
-                IsUpdateLayerOpen = false;
-            else
-                IsUpdateLayerOpen = true;
-        });
-        public RelayCommand NewElementNode => new(x =>
-        {
-            if (x is QueryElementNode qen && qen.Attributes.Count > 0)
-                ShowMessage("Error", "Can't add a child to a node with attributes", true, 300, 150);
-            else if (x is QueryCollectionNode QCN)
-            {
-                if (QCN.Nodes.Count == 0)
-                    ShowAddEdit(new QueryElementNode { IsTopLevel = true, IsUnique = true }, x);
-                else
-                    ShowAddEdit(new QueryElementNode { IsTopLevel = true }, x);
-            }
-            else
-            {
-                ShowAddEdit(typeof(QueryElementNode), x);
-            }
-        });
-
-
-        public RelayCommand<QueryElementNode> MakeUnique => new(x =>
-        {
-            var parent = (QueryCollectionNode)Scraper.Manager.GetParent(x);
-            var changes = parent.Nodes.Select(y =>
-            {
-                y.IsUnique = (y == x);
-                return y;
-            });
-            Scraper.HttpRequest.Update(x.GetType().Name, changes.ToList(), () =>
-            {
-                ShowMessage("Error", "It's Unique", true, 300, 150);
-                parent.Read();
-            });
-        });
-
-
-        public RelayCommand<QueryElementNode> NewAttributeNode => new(x =>
-        {
-            if (x.Children.Count > 0)
-                ShowMessage("Error", "Can't add an attribute to a node with children", true, 300, 150);
-            else
-                ShowAddEdit(typeof(QueryAttributeNode), x);
-        });
-        public RelayCommand<ScraperSearchProfile> UpdateVariables => new(x =>
-        {
-            var httprequest = Scraper.HttpRequest;
-            var Add = x.VariableSources.Where(y => y._id == null).Select(y => new VariableDefined { _id = y._id, UseVariable = y.UseVariable, Value = y.Value, TemplateID = y.TemplateID, ProfileID = x._id }).ToList();
-            var Update = x.VariableSources.Where(y => y._id != null).Select(y => new VariableDefined { _id = y._id, UseVariable = y.UseVariable, Value = y.Value, TemplateID = y.TemplateID, ProfileID = x._id }).ToList();
-            ShowMessage("Adding", "Adding new variables", false, 300, 150);
-            httprequest.Create(typeof(VariableDefined).Name, Add, () =>
-            {
-                ShowMessage("Updating", "Updating old variables", false, 300, 150);
-                httprequest.Update(typeof(VariableDefined).Name, Update, () => ShowMessage("Finished", "Completed!", true, 300, 150));
-            });
-        });
-        public RelayCommand DeconstructURL => new(x =>
+        public void ShowURLDeconstructor()
         {
             Name = "Convert URL to a Site Profile";
             Content = new URLDeconstructor();
             Width = new GridLength(400, GridUnitType.Pixel);
             Height = new GridLength(185, GridUnitType.Pixel);
-        });
-        public RelayCommand<URLDeconstructor> AddURL => new(x =>
+        }
+        public void CloseModal()
         {
-            var SiteProfile = new ScraperSiteProfile() { Name = x.ProfileName };
-            var full = Regex.Match(x.URL, @"(?:(.+):\/{2})?(.+)");
-            var protocol = full.Groups[1] ?? null;
-            SiteProfile.Protocol = Enum.TryParse<Protocol>(protocol.Value, out var result) ? result : default;
-            var seperated = full.Groups[2].Value.Split('?');
-            SiteProfile.Hostname = seperated[0];
-            var Variables = new ObservableCollection<TemplateVariable>();
-            if (seperated.Length > 1)
-            {
-                Variables = new ObservableCollection<TemplateVariable>(seperated[1].Split('&').Select(x =>
-                {
-                    var template = new TemplateVariable() { MethodType = MethodType.GET };
-                    var iable = x.Split('=');
-                    template.Name = iable[0];
-                    if (double.TryParse(iable[1], out var number))
-                    {
-                        template.Value = number;
-                        template.VariableType = VariableType.Incremental;
-                    }
-                    else if (iable[1].ToLower() == "true" || iable[1].ToLower() == "false")
-                    {
-                        template.Value = iable[1].ToLower() == "true";
-                        template.VariableType = VariableType.Boolean;
-                    }
-                    else
-                    {
-                        template.Value = iable[1];
-                        template.VariableType = VariableType.String;
-                    }
-                    return template;
-                }));
-            }
-            ShowMessage("Adding", "Creating new Site Profile", false, 300, 150);
-            Scraper.HttpRequest.CreateThenGetIDs(typeof(ScraperSiteProfile).Name, SiteProfile, id =>
-            {
-                var withId = Variables.Select(va => new TemplateVariable { MethodType = va.MethodType, Name = va.Name, VariableType = va.VariableType, ParentID = id, Value = va.Value });
-                ShowMessage("Adding", "Adding new variables", false, 300, 150);
-                Scraper.HttpRequest.Create(typeof(TemplateVariable).Name, withId, () =>
-                {
-                    ShowMessage("Adding", "Creating default Search Profile", true, 300, 150);
-                    Scraper.HttpRequest.Create(typeof(ScraperSearchProfile).Name, new ScraperSearchProfile { ParentID = id, Name = "Asserted Profile", QueryDelay = 3000 }, () =>
-                    {
-                        ShowMessage("Done!", "Finished!", true, 300, 150);
-                        Scraper.Manager.Read();
-                    });
-                });
-            });
-        });
-        public RelayCommand<ScraperSearchProfile> RunSearch => new(x =>
-        {
-            var site = (ScraperSiteProfile)Scraper.Manager.GetParent(x);
-            Scraper.HttpRequest.BeginScraping(site.Protocol, site.Hostname, x);
-        });
-        public RelayCommand<ScraperSearchProfile> RunIndexSearch => new(x =>
-        {
-            var site = (ScraperSiteProfile)Scraper.Manager.GetParent(x);
-            Scraper.HttpRequest.BeginScraping(site.Protocol, site.Hostname, x, true);
-        });
+            Name = null;
+            Content = null;
+            Additional = null;
+        }
     }
 
     public class ModalMessage
     {
         public string Message { get; set; }
+    }
+
+    public class JsonResults
+    {
+        public List<JsonContainer> Results { get; set; }
+
+    }
+
+    public class LayerController : ViewModel
+    {
+        public bool IsUpdateLayerOpen { get => Get(); set => Set(value); }
     }
     public class URLDeconstructor : INotifyPropertyChanged
     {
@@ -387,5 +269,12 @@ namespace ScraperControlLibrary
         private void OnPropertyChanged([CallerMemberName] string name = "") => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
         public event PropertyChangedEventHandler PropertyChanged;
+    }
+    public class RelayTargetCommand : RoutedCommand
+    {
+        public RelayTargetCommand()
+        {
+                  
+        }
     }
 }

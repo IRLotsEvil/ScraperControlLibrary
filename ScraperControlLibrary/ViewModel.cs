@@ -144,7 +144,7 @@ namespace ScraperControlLibrary
                         count++;
                         if (count == requests.Count) deleteOneThenRead();
                         else
-                            Scraper.ModalInstance.ShowMessage("Deleting...", "Deleting " + Math.Ceiling((requests.Count / count) * 100) + "%", false);
+                            Scraper.ModalInstance.ShowMessage("Deleting...", "Deleting " + Math.Ceiling(requests.Count / count * 100) + "%", false);
                     });
                 });
             }

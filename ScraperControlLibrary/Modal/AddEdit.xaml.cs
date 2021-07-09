@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -75,31 +76,21 @@ namespace ScraperControlLibrary
     {
         public object Convert(object a, Type targetType, object parameter, CultureInfo culture)
         {
-            if (a != null)
+            return a?.GetType().GetProperties().Aggregate(new List<Carrier>(), (acc, cur) =>
             {
-                var c = a.GetType().GetProperties().Where(x => Type.GetTypeCode(x.PropertyType) != TypeCode.Object && x.SetMethod != null).Where(x =>
+                if (Type.GetTypeCode(cur.PropertyType) != TypeCode.Object && cur.SetMethod != null)
                 {
-                    var Ignore = x.GetCustomAttributes(typeof(IgnoreCarrierAttribute), false).OfType<IgnoreCarrierAttribute>().FirstOrDefault();
-                    if (Ignore != null)
+                    Carrier carrier = new(cur.Name, cur.GetValue(a), cur.PropertyType);
+                    if (cur.GetCustomAttributes(typeof(IgnoreCarrierAttribute), false).FirstOrDefault() is IgnoreCarrierAttribute ignore)
                     {
-                        if (!string.IsNullOrEmpty(Ignore.Dependant) && Ignore.Value != null)
-                        {
-                            var property = a.GetType().GetProperty(Ignore.Dependant);
-                            if (property != null && property.PropertyType == Ignore.Value.GetType())
-                            {
-                                var Value = property.GetValue(a);
-                                return Value.Equals(Ignore.Value);
-                            }
-                        }
-                        else return false;
+                        carrier.IsEditable = ignore.IsEditable ?? true;
+                        if (!string.IsNullOrEmpty(ignore.Dependant) && ignore.Value != null && a.GetType().GetProperty(ignore.Dependant) is PropertyInfo property && property.PropertyType == ignore.Value.GetType() && property.GetValue(a).Equals(ignore.Value) || ignore.IsEditable.HasValue)
+                            acc.Insert(carrier.PropertyName == "Name" ? 0 : acc.Count, carrier);
                     }
-                    return true;
-                }).Select(x => new Carrier(x.Name, x.GetValue(a), x.PropertyType)).ToList();
-                var (index, carrier) = c.Select((x, i) => (index: i, carrier: x)).First(x => x.carrier.PropertyName == "Name");
-                c.RemoveAt(index);
-                return c.Prepend(carrier);
-            }
-            return null;
+                    else acc.Insert(carrier.PropertyName == "Name" ? 0 : acc.Count, carrier);
+                }
+                return acc;
+            });
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -110,20 +101,24 @@ namespace ScraperControlLibrary
     [System.AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = true)]
     sealed class IgnoreCarrierAttribute : Attribute
     {
-        readonly string dependant;
-        readonly object value;
-        public string Dependant { get => dependant; }
-        public object Value { get => value; }
+        private readonly string dependant;
+        private readonly object value;
+        private readonly bool? isEditable;
+        public string Dependant => dependant;
+        public object Value => value;
+        public bool? IsEditable => isEditable;
         public IgnoreCarrierAttribute() { }
         public IgnoreCarrierAttribute(string dependant, object value)
         {
             this.dependant = dependant;
             this.value = value;
         }
+        public IgnoreCarrierAttribute(bool iseditable) => this.isEditable = iseditable;
     }
 
     public class Carrier : INotifyPropertyChanged
     {
+        public bool IsEditable { get; set; } = true;
         public string PropertyName { get; set; }
         private object _Value;
         public object Value

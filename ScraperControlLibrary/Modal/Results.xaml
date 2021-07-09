@@ -1,0 +1,41 @@
+﻿<UserControl x:Class="ScraperControlLibrary.Modal.Results"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ScraperControlLibrary.Modal"
+             xmlns:l="clr-namespace:ScraperControlLibrary.Controller"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:col="clr-namespace:System.Collections;assembly=System.Runtime" xmlns:generic="clr-namespace:System.Collections.Generic;assembly=System.Runtime"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <ItemsControl ItemsSource="{Binding Results}">
+            <ItemsControl.Resources>
+                <DataTemplate DataType="{x:Type l:JsonValueContainer}">
+                    <Label Content="{Binding Value}"/>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type l:JsonPropertyCollectionContainer}">
+                    <Expander Header="{Binding Name}">
+                        <ItemsControl ItemsSource="{Binding Values}"/>
+                    </Expander>
+                </DataTemplate>
+                    <DataTemplate DataType="{x:Type l:JsonCollectionContainer}">
+                        <ItemsControl ItemsSource="{Binding Values}" Background="LightGray" Margin="5" BorderThickness="2" BorderBrush="Black" Padding="5" />
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type l:JsonPropertyValueContainer}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Label Content="{Binding Name}"/>
+                            <TextBlock Text="{Binding Value}" TextWrapping="Wrap"  Grid.Column="1"/>
+                        </Grid>
+                    </DataTemplate>
+            </ItemsControl.Resources>
+        </ItemsControl>
+        </ScrollViewer>
+    </Grid>
+</UserControl>

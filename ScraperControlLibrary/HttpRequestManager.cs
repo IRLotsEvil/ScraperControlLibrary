@@ -127,15 +127,23 @@ namespace ScraperControlLibrary
             { "Scraper", "scraper" }
         };
 
-        public HttpRequestManager(string hostname, string port, string database)
+        public HttpRequestManager(string hostname, string port, string database) => NewConnection(hostname,port,database);
+
+        public HttpRequestManager() => StartFromSettings();
+
+        public void StartFromSettings()
         {
-            HostName = hostname;
-            Port = port;
-            DataBaseName = database;
-            Start();
+            CurrentCount = (int)Scraper.SettingsManager["UpdateID"];
+            NewConnection((string)Scraper.SettingsManager["HostName"], (string)Scraper.SettingsManager["Port"], (string)Scraper.SettingsManager["DataBase"]);
         }
 
-        public HttpRequestManager() { }
+        public void CommitToSettings()
+        {
+            Scraper.SettingsManager["UpdateID"] = CurrentCount;
+            Scraper.SettingsManager["HostName"] = HostName;
+            Scraper.SettingsManager["Port"] = Port;
+            Scraper.SettingsManager["DataBase"] = DataBaseName;
+        }
 
         private string GetAddress(string routeName, params string[] routes) => AddressBook.ContainsKey(routeName) ? string.Join("/", new List<string>() { "http://" + HostName + ":" + Port, AddressBook[routeName] }.Concat(routes)) : null;
 
@@ -271,9 +279,24 @@ namespace ScraperControlLibrary
         public void Stop()
         {
             IsRequestingActive = false;
+            StoredRequests.Clear();
             Status = ServerStatus.Closed;
         }
 
+        /// <summary>
+        /// Starts the HttpRequestManager with the details for a new connection
+        /// </summary>
+        /// <param name="hostname"></param>
+        /// <param name="port"></param>
+        /// <param name="database"></param>
+        public void NewConnection(string hostname, string port, string database)
+        {
+            if (IsRequestingActive) Stop();
+            HostName = hostname;
+            Port = port;
+            DataBaseName = database;
+            Start();
+        }
 
         /// <summary>
         /// Insert a document or documents into a collection
@@ -354,6 +377,7 @@ namespace ScraperControlLibrary
         /// <param name="collectionName">Collection to do changes one</param>
         /// <returns></returns>
         public string ReadAll(string collectionName) => HttpHandler("GET", GetAddress("Mongo", DataBaseName, collectionName), null, true);
+
         /// <summary>
         /// Reads all the documents from a collection with a callback when the server returns it's message
         /// </summary>
@@ -380,6 +404,7 @@ namespace ScraperControlLibrary
             {
                 var item = JsonSerializer.Deserialize<MongoUpdateWrapper>(message);
                 CurrentCount = item.count + 1;
+                Scraper.SettingsManager["UpdateID"] = CurrentCount;
                 System.Windows.Application.Current.Dispatcher.Invoke(() => 
                 {
                     ServerMessages = new ObservableCollection<MongoUpdate>(item.updates.Reverse<MongoUpdate>().Concat(ServerMessages));
@@ -449,6 +474,9 @@ namespace ScraperControlLibrary
         public string collection { get; set; }
         public string type { get; set; }
         public string doc_id { get; set; }
+        public List<string> Added { get; set; }
+        public List<string> Deleted { get; set; }
+        public List<string> Updated { get; set; }
     }
 
     public class MongoUpdateEventArgs : EventArgs

@@ -84,6 +84,7 @@ namespace ScraperControlLibrary
         /// </summary>
         public double QueryDelay { get; set; }
     }
+
     /// <summary>
     /// 
     /// </summary>
@@ -155,10 +156,20 @@ namespace ScraperControlLibrary
         public ObservableCollection<QueryElementNode> Children { get; set; }
         [JsonIgnore]
         public ObservableCollection<QueryAttributeNode> Attributes { get; set; }
+        [JsonIgnore]
+        public ObservableCollection<PropertyWatcher> Watchers { get; set; }
     }
     [ScraperDisplayName("Attribute Node")]
     public class QueryAttributeNode : ViewModel
     {
         public string AttributeNode { get; set; }
+        [JsonIgnore]
+        public ObservableCollection<PropertyWatcher> Watchers { get; set; }
+    }
+    [ScraperDisplayName("Watcher")]
+    public class PropertyWatcher : ViewModel
+    {
+        public string PropertyPath { get; set; }
+        public string Filter { get; set; }
     }
 }

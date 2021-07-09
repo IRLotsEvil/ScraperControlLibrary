@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ScraperControlLibrary": {
+      "commandName": "Project",
+      "nativeDebugging": false
+    }
+  }
+}

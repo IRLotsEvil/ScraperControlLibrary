@@ -4,387 +4,393 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ScraperControlLibrary"
+             xmlns:c="clr-namespace:ScraperControlLibrary.Controller"
+             xmlns:m="clr-namespace:ScraperControlLibrary.Modal"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
         <ResourceDictionary Source="ScraperManagerResources.xaml"/>
     </UserControl.Resources>
+    
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <Grid>
-            <Grid.Style>
-                <Style TargetType="Grid">
-                    <Setter Property="Grid.Effect">
-                        <Setter.Value>
-                            <BlurEffect Radius="5"/>
-                        </Setter.Value>
-                    </Setter>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding Content, Source={x:Static local:Scraper.ModalInstance}}" Value="{x:Null}">
-                            <Setter Property="Grid.Effect">
-                                <Setter.Value>
-                                    <BlurEffect Radius="0"/>
-                                </Setter.Value>
-                            </Setter>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Grid.Style>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200"/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <TreeView ItemsSource="{Binding ScraperSiteProfiles, Source={x:Static local:Scraper.Manager}}" x:Name="ScraperModelSources" BorderThickness="0">
-                <TreeView.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Header="Add Site Profile" Command="{Binding NewSiteProfile, Source={x:Static local:Scraper.ModalInstance}}"/>
-                        <MenuItem Header="Create from URL" Command="{Binding DeconstructURL, Source={x:Static local:Scraper.ModalInstance}}"/>
-                    </ContextMenu>
-                </TreeView.ContextMenu>
-                <TreeView.Resources>
-                    <HierarchicalDataTemplate DataType="{x:Type local:QueryElementNode}" ItemsSource="{Binding Children}">
-                        <Label Content="{Binding Name}">
-                            <Label.Style>
-                                <Style TargetType="Label">
-                                    <Setter Property="ContextMenu">
-                                        <Setter.Value>
-                                            <ContextMenu>
-                                                <MenuItem Header="Add Element Query" Command="{Binding NewElementNode, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                                <Separator/>
-                                                <MenuItem Header="Edit" Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                                <MenuItem Header="Delete" Command="{Binding DeleteItem, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                            </ContextMenu>
-                                        </Setter.Value>
-                                    </Setter>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsTopLevel}" Value="True">
-                                            <Setter Property="ContextMenu">
-                                                <Setter.Value>
-                                                    <ContextMenu>
-                                                        <MenuItem Header="Add Element Query" Command="{Binding NewElementNode, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                                        <MenuItem Header="Unique" IsCheckable="True" IsChecked="{Binding IsUnique}" Command="{Binding MakeUnique, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                                        <Separator/>
-                                                        <MenuItem Header="Edit" Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                                        <MenuItem Header="Delete" Command="{Binding DeleteItem, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                                    </ContextMenu>
-                                                </Setter.Value>
-                                            </Setter>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Label.Style>
-
-                        </Label>
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type local:QueryCollectionNode}" ItemsSource="{Binding Nodes}">
-                        <Label Content="{Binding Name}">
-                            <Label.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Add Element Query" Command="{Binding NewElementNode, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <Separator/>
-                                    <MenuItem Header="Edit" Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Delete" Command="{Binding DeleteItem, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                </ContextMenu>
-                            </Label.ContextMenu>
-                        </Label>
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type local:ScraperSearchProfile}" ItemsSource="{Binding Queries}" >
-                        <Label Content="{Binding Name}">
-                            <Label.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Add Collection Query" Command="{Binding NewCollectionNode, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <Separator/>
-                                    <MenuItem Header="Edit" Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Delete" Command="{Binding DeleteItem, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                </ContextMenu>
-                            </Label.ContextMenu>
-                        </Label>
-                    </HierarchicalDataTemplate>
-                    <HierarchicalDataTemplate DataType="{x:Type local:ScraperSiteProfile}" ItemsSource="{Binding ScraperSearchProfiles}">
-                        <Label Content="{Binding Name}">
-                            <Label.ContextMenu>
-                                <ContextMenu>
-                                    <MenuItem Header="Add Search Profile" Command="{Binding NewSearchProfile, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <Separator/>
-                                    <MenuItem Header="Edit" Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Delete" Command="{Binding DeleteItem, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                </ContextMenu>
-                            </Label.ContextMenu>
-                        </Label>
-                    </HierarchicalDataTemplate>
-                </TreeView.Resources>
-            </TreeView>
-            <ContentControl Grid.Column="1" Content="{Binding SelectedItem, ElementName=ScraperModelSources}">
-                <ContentControl.Resources>
-                    <DataTemplate DataType="{x:Type local:ScraperSearchProfile}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="25"/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Menu>
-                                <Menu.Resources>
-                                    <Style TargetType="MenuItem">
-                                        <Setter Property="Height" Value="25"/>
+        <Border BorderThickness="5" BorderBrush="#FFF0F0F0">
+            <Grid>
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Setter Property="Grid.Effect">
+                            <Setter.Value>
+                                <BlurEffect Radius="5"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Content, Source={x:Static local:Scraper.ModalInstance}}" Value="{x:Null}">
+                                <Setter Property="Grid.Effect">
+                                    <Setter.Value>
+                                        <BlurEffect Radius="0"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="3"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <TreeView ItemsSource="{Binding ScraperSiteProfiles, Source={x:Static local:Scraper.Manager}}" x:Name="ScraperModelSources" BorderThickness="0" Background="#FFEBFFFE">
+                    <TreeView.ContextMenu>
+                        <ContextMenu>
+                            <MenuItem Header="Add Site Profile" Command="{x:Static c:CommandLibrary.NewSiteProfile}"/>
+                            <MenuItem Header="Create from URL" Command="{x:Static c:CommandLibrary.DeconstructURL}"/>
+                        </ContextMenu>
+                    </TreeView.ContextMenu>
+                    <TreeView.Resources>
+                        <HierarchicalDataTemplate DataType="{x:Type local:QueryElementNode}" ItemsSource="{Binding Children}">
+                            <Label Content="{Binding Name}">
+                                <Label.Style>
+                                    <Style TargetType="Label">
+                                        <Setter Property="ContextMenu">
+                                            <Setter.Value>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Add Element Query" Command="{x:Static c:CommandLibrary.NewElementNode}" CommandParameter="{Binding}"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="Edit" Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}"/>
+                                                    <MenuItem Header="Delete" Command="{x:Static c:CommandLibrary.DeleteItem}" CommandParameter="{Binding}"/>
+                                                </ContextMenu>
+                                            </Setter.Value>
+                                        </Setter>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsTopLevel}" Value="True">
+                                                <Setter Property="ContextMenu">
+                                                    <Setter.Value>
+                                                        <ContextMenu>
+                                                            <MenuItem Header="Add Element Query" Command="{x:Static c:CommandLibrary.NewElementNode}" CommandParameter="{Binding}"/>
+                                                            <MenuItem Header="Unique" IsCheckable="True" IsChecked="{Binding IsUnique}" Command="{x:Static c:CommandLibrary.MakeUnique}" CommandParameter="{Binding}"/>
+                                                            <Separator/>
+                                                            <MenuItem Header="Edit" Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}"/>
+                                                            <MenuItem Header="Delete" Command="{x:Static c:CommandLibrary.DeleteItem}" CommandParameter="{Binding}"/>
+                                                        </ContextMenu>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
                                     </Style>
-                                </Menu.Resources>
-                                <MenuItem Header="Save" Command="{Binding UpdateVariables,Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                <MenuItem Header="Run">
-                                    <MenuItem Header="Normal" Command="{Binding RunSearch, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Index" Command="{Binding RunIndexSearch, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                </MenuItem>
-                            </Menu>
-                            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
-                                <ItemsControl ItemsSource="{Binding VariableSources}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type local:TemplateVariable}">
-                                            <Grid Height="30">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition Width="50"/>
-                                                    <ColumnDefinition Width="100"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Label VerticalContentAlignment="Center" Content="{Binding Name}"/>
-                                                <ContentControl Grid.Column="1" Content="{Binding}">
-                                                    <ContentControl.Style>
-                                                        <Style TargetType="ContentControl">
-                                                            <Setter Property="ContentTemplate">
-                                                                <Setter.Value>
-                                                                    <DataTemplate DataType="{x:Type local:TemplateVariable}">
-                                                                        <TextBox Text="{Binding Value}"/>
-                                                                    </DataTemplate>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding VariableType}" Value="{x:Static local:VariableType.String}">
-                                                                    <Setter Property="ContentTemplate">
-                                                                        <Setter.Value>
-                                                                            <DataTemplate DataType="{x:Type local:TemplateVariable}">
-                                                                                <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Padding="5"/>
-                                                                            </DataTemplate>
-                                                                        </Setter.Value>
-                                                                    </Setter>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding VariableType}" Value="{x:Static local:VariableType.Incremental}">
-                                                                    <Setter Property="ContentTemplate">
-                                                                        <Setter.Value>
-                                                                            <DataTemplate DataType="{x:Type local:TemplateVariable}">
-                                                                                <local:NumberInput InputValue="{Binding Value,Mode=TwoWay, NotifyOnSourceUpdated=True,NotifyOnTargetUpdated=True,UpdateSourceTrigger=PropertyChanged}" Increments="{Binding Increments}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}"/>
-                                                                            </DataTemplate>
-                                                                        </Setter.Value>
-                                                                    </Setter>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding VariableType}" Value="{x:Static local:VariableType.Boolean}">
-                                                                    <Setter Property="ContentTemplate">
-                                                                        <Setter.Value>
-                                                                            <DataTemplate DataType="{x:Type local:TemplateVariable}">
-                                                                                <ToggleButton IsChecked="{Binding Value}" Content="{Binding Value}"/>
-                                                                            </DataTemplate>
-                                                                        </Setter.Value>
-                                                                    </Setter>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </ContentControl.Style>
-                                                </ContentControl>
-                                                <Label Grid.Column="2" Content="{Binding MethodType}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-                                                    <Label.Style>
-                                                        <Style TargetType="Label">
-                                                            <Setter Property="Background" Value="LightCoral"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Content,RelativeSource={RelativeSource Mode=Self}}" Value="{x:Static local:MethodType.GET}">
-                                                                    <Setter Property="Background" Value="LightGreen"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Label.Style>
-                                                </Label>
+                                </Label.Style>
 
-                                                <ToggleButton IsChecked="{Binding UseVariable}" Grid.Column="3">
-                                                    <ToggleButton.Style>
-                                                        <Style TargetType="ToggleButton">
-                                                            <Setter Property="Visibility" Value="Visible"/>
-                                                            <Setter Property="Content" Value="Ignore"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource Mode=Self}}" Value="True">
-                                                                    <Setter Property="Content" Value="Use"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsRequired}" Value="True">
-                                                                    <Setter Property="IsEnabled" Value="False"/>
-                                                                    <Setter Property="Content" Value="Required"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding IsIndex}" Value="True">
-                                                                    <Setter Property="IsEnabled" Value="False"/>
-                                                                    <Setter Property="Content" Value="Index"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </ToggleButton.Style>
-                                                </ToggleButton>
-
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Grid>
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type local:ScraperSiteProfile}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="25"/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Menu>
-                                <Menu.Resources>
-                                    <Style TargetType="MenuItem">
-                                        <Setter Property="Height" Value="25"/>
-                                    </Style>
-                                </Menu.Resources>
-                                <MenuItem Header="New...">
-                                    <MenuItem Header="String" Command="{Binding NewStringTemplateVariable, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Boolean" Command="{Binding NewBooleanTemplateVariable, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                    <MenuItem Header="Number" Command="{Binding NewIncrementalTemplateVariable, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}"/>
-                                </MenuItem>
-                            </Menu>
-                            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                                <ItemsControl ItemsSource="{Binding TemplateVariables}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate DataType="{x:Type local:TemplateVariable}">
-                                            <Grid Height="30">
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition/>
-                                                    <ColumnDefinition Width="100"/>
-                                                    <ColumnDefinition Width="100"/>
-                                                    <ColumnDefinition Width="60"/>
-                                                </Grid.ColumnDefinitions>
-                                                <Label Content="{Binding Name}" VerticalContentAlignment="Center"/>
-                                                <Label Content="{Binding VariableType}" Grid.Column="1" VerticalContentAlignment="Center"/>
-                                                <Label Content="{Binding MethodType}" Grid.Column="2" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
-                                                    <Label.Style>
-                                                        <Style TargetType="Label">
-                                                            <Setter Property="Background" Value="LightCoral"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Content,RelativeSource={RelativeSource Mode=Self}}" Value="{x:Static local:MethodType.GET}">
-                                                                    <Setter Property="Background" Value="LightGreen"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Label.Style>
-                                                </Label>
-                                                <Grid Grid.Column="3">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition/>
-                                                        <ColumnDefinition/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <Button Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent">
-                                                        <Canvas Width="10" Height="10">
-                                                            <Polygon Points="9,0 10,1 1,10 0,9" StrokeThickness="1" Stroke="Black"/>
-                                                        </Canvas>
-                                                    </Button>
-                                                    <Button Grid.Column="1" Width="30" BorderThickness="0" Cursor="Hand" Background="Transparent" Command="{Binding DeleteItem, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}">
-                                                        <Canvas Width="10" Height="10">
-                                                            <Line X1="0" X2="10" Y1="0" Y2="10" StrokeThickness="2" Stroke="Red"/>
-                                                            <Line X1="10" X2="0" Y1="0" Y2="10" StrokeThickness="2" Stroke="Red"/>
-                                                        </Canvas>
-                                                    </Button>
-                                                </Grid>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </ScrollViewer>
-                        </Grid>
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type local:QueryCollectionNode}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
+                            </Label>
+                        </HierarchicalDataTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type local:QueryCollectionNode}" ItemsSource="{Binding Nodes}">
+                            <Label Content="{Binding Name}">
+                                <Label.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Add Element Query" Command="{x:Static c:CommandLibrary.NewElementNode}" CommandParameter="{Binding}"/>
+                                        <Separator/>
+                                        <MenuItem Header="Edit" Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Delete" Command="{x:Static c:CommandLibrary.DeleteItem}" CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Results" Command="{x:Static c:CommandLibrary.GetResults}" CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Label.ContextMenu>
+                            </Label>
+                        </HierarchicalDataTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type local:ScraperSearchProfile}" ItemsSource="{Binding Queries}" >
+                            <Label Content="{Binding Name}">
+                                <Label.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Add Collection Query" Command="{x:Static c:CommandLibrary.NewCollectionNode}" CommandParameter="{Binding}"/>
+                                        <Separator/>
+                                        <MenuItem Header="Edit" Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Delete" Command="{x:Static c:CommandLibrary.DeleteItem}" CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Label.ContextMenu>
+                            </Label>
+                        </HierarchicalDataTemplate>
+                        <HierarchicalDataTemplate DataType="{x:Type local:ScraperSiteProfile}" ItemsSource="{Binding ScraperSearchProfiles}">
+                            <Label Content="{Binding Name}">
+                                <Label.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Add Search Profile" Command="{x:Static c:CommandLibrary.NewSearchProfile}" CommandParameter="{Binding}"/>
+                                        <Separator/>
+                                        <MenuItem Header="Edit" Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Delete" Command="{x:Static c:CommandLibrary.DeleteItem}" CommandParameter="{Binding}"/>
+                                    </ContextMenu>
+                                </Label.ContextMenu>
+                            </Label>
+                        </HierarchicalDataTemplate>
+                    </TreeView.Resources>
+                </TreeView>
+                <ContentControl Grid.Column="2" Content="{Binding SelectedItem, ElementName=ScraperModelSources}">
+                    <ContentControl.Resources>
+                        <DataTemplate DataType="{x:Type local:ScraperSearchProfile}">
                             <Grid>
-                                <Label Content="{Binding Name}" VerticalContentAlignment="Center" FontWeight="Bold"/>
-                                <Button Grid.Column="1" Content="Edit" Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent" Width="80" HorizontalAlignment="Right" Padding="0"/>
-                            </Grid>
-                            <Grid Grid.Row="1">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                    <TextBlock Text="{Binding Query}"/>
-                                </ScrollViewer>
-                            </Grid>
-                        </Grid>
-                    </DataTemplate>
-                    <DataTemplate DataType="{x:Type local:QueryElementNode}">
-                        <Grid>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="30"/>
-                                <RowDefinition Height="100"/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <Grid>
-                                <Label Content="{Binding Name}" VerticalContentAlignment="Center" FontWeight="Bold"/>
-                                <Button Grid.Column="1" Content="Edit" Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent" Width="80" HorizontalAlignment="Right" Padding="0"/>
-                            </Grid>
-                            <Grid Grid.Row="1">
-                                <ScrollViewer VerticalScrollBarVisibility="Auto">
-                                    <TextBlock Text="{Binding Query}"/>
-                                </ScrollViewer>
-                            </Grid>
-                            <Grid Grid.Row="2">
-                                <Grid>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="30"/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <Button Grid.Column="1" Content="New Attribute" Command="{Binding NewAttributeNode, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent" Width="100" HorizontalAlignment="Right" Padding="0"/>
-                                    <ItemsControl ItemsSource="{Binding Attributes}" Grid.Row="1">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Menu>
+                                    <Menu.Resources>
+                                        <Style TargetType="MenuItem">
+                                            <Setter Property="Height" Value="25"/>
+                                        </Style>
+                                    </Menu.Resources>
+                                    <MenuItem Header="Save" Command="{x:Static c:CommandLibrary.UpdateVariables}" CommandParameter="{Binding}"/>
+                                    <MenuItem Header="Run">
+                                        <MenuItem Header="Normal" Command="{x:Static c:CommandLibrary.RunSearch}" CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Index" Command="{x:Static c:CommandLibrary.RunIndexSearch}" CommandParameter="{Binding}"/>
+                                    </MenuItem>
+                                </Menu>
+                                <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
+                                    <ItemsControl ItemsSource="{Binding VariableSources}">
                                         <ItemsControl.ItemTemplate>
-                                            <DataTemplate DataType="{x:Type local:QueryAttributeNode}">
-                                                <Grid>
+                                            <DataTemplate DataType="{x:Type local:TemplateVariable}">
+                                                <Grid Height="30">
                                                     <Grid.ColumnDefinitions>
                                                         <ColumnDefinition/>
-                                                        <ColumnDefinition Width="30"/>
-                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="50"/>
+                                                        <ColumnDefinition Width="100"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <Label Content="{Binding Name}"/>
-                                                    <Button Grid.Column="1" Command="{Binding AddEditViewModel, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent">
-                                                        <Canvas Width="10" Height="10">
-                                                            <Polygon Points="9,0 10,1 1,10 0,9" StrokeThickness="1" Stroke="Black"/>
-                                                        </Canvas>
-                                                    </Button>
-                                                    <Button Grid.Column="2" Width="30" BorderThickness="0" Cursor="Hand" Background="Transparent" Command="{Binding DeleteItem, Source={x:Static local:Scraper.ModalInstance}}" CommandParameter="{Binding}">
-                                                        <Canvas Width="10" Height="10">
-                                                            <Line X1="0" X2="10" Y1="0" Y2="10" StrokeThickness="2" Stroke="Red"/>
-                                                            <Line X1="10" X2="0" Y1="0" Y2="10" StrokeThickness="2" Stroke="Red"/>
-                                                        </Canvas>
-                                                    </Button>
+                                                    <Label VerticalContentAlignment="Center" Content="{Binding Name}"/>
+                                                    <ContentControl Grid.Column="1" Content="{Binding}">
+                                                        <ContentControl.Style>
+                                                            <Style TargetType="ContentControl">
+                                                                <Setter Property="ContentTemplate">
+                                                                    <Setter.Value>
+                                                                        <DataTemplate DataType="{x:Type local:TemplateVariable}">
+                                                                            <TextBox Text="{Binding Value}"/>
+                                                                        </DataTemplate>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding VariableType}" Value="{x:Static local:VariableType.String}">
+                                                                        <Setter Property="ContentTemplate">
+                                                                            <Setter.Value>
+                                                                                <DataTemplate DataType="{x:Type local:TemplateVariable}">
+                                                                                    <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Padding="5"/>
+                                                                                </DataTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding VariableType}" Value="{x:Static local:VariableType.Incremental}">
+                                                                        <Setter Property="ContentTemplate">
+                                                                            <Setter.Value>
+                                                                                <DataTemplate DataType="{x:Type local:TemplateVariable}">
+                                                                                    <local:NumberInput InputValue="{Binding Value,Mode=TwoWay, NotifyOnSourceUpdated=True,NotifyOnTargetUpdated=True,UpdateSourceTrigger=PropertyChanged}" Increments="{Binding Increments}" Maximum="{Binding Maximum}" Minimum="{Binding Minimum}"/>
+                                                                                </DataTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding VariableType}" Value="{x:Static local:VariableType.Boolean}">
+                                                                        <Setter Property="ContentTemplate">
+                                                                            <Setter.Value>
+                                                                                <DataTemplate DataType="{x:Type local:TemplateVariable}">
+                                                                                    <ToggleButton IsChecked="{Binding Value}" Content="{Binding Value}"/>
+                                                                                </DataTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ContentControl.Style>
+                                                    </ContentControl>
+                                                    <Label Grid.Column="2" Content="{Binding MethodType}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                                                        <Label.Style>
+                                                            <Style TargetType="Label">
+                                                                <Setter Property="Background" Value="LightCoral"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Content,RelativeSource={RelativeSource Mode=Self}}" Value="{x:Static local:MethodType.GET}">
+                                                                        <Setter Property="Background" Value="LightGreen"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Label.Style>
+                                                    </Label>
+
+                                                    <ToggleButton IsChecked="{Binding UseVariable}" Grid.Column="3">
+                                                        <ToggleButton.Style>
+                                                            <Style TargetType="ToggleButton">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                                <Setter Property="Content" Value="Ignore"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsChecked, RelativeSource={RelativeSource Mode=Self}}" Value="True">
+                                                                        <Setter Property="Content" Value="Use"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsRequired}" Value="True">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                        <Setter Property="Content" Value="Required"/>
+                                                                    </DataTrigger>
+                                                                    <DataTrigger Binding="{Binding IsIndex}" Value="True">
+                                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                                        <Setter Property="Content" Value="Index"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </ToggleButton.Style>
+                                                    </ToggleButton>
+
                                                 </Grid>
                                             </DataTemplate>
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type local:ScraperSiteProfile}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="25"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Menu>
+                                    <Menu.Resources>
+                                        <Style TargetType="MenuItem">
+                                            <Setter Property="Height" Value="25"/>
+                                        </Style>
+                                    </Menu.Resources>
+                                    <MenuItem Header="New...">
+                                        <MenuItem Header="String" Command="{x:Static c:CommandLibrary.NewStringTemplateVariable}" CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Boolean" Command="{x:Static c:CommandLibrary.NewBooleanTemplateVariable}" CommandParameter="{Binding}"/>
+                                        <MenuItem Header="Number" Command="{x:Static c:CommandLibrary.NewIncrementalTemplateVariable}" CommandParameter="{Binding}"/>
+                                    </MenuItem>
+                                </Menu>
+                                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                                    <ItemsControl ItemsSource="{Binding TemplateVariables}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate DataType="{x:Type local:TemplateVariable}">
+                                                <Grid Height="30">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="100"/>
+                                                        <ColumnDefinition Width="60"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Label Content="{Binding Name}" VerticalContentAlignment="Center"/>
+                                                    <Label Content="{Binding VariableType}" Grid.Column="1" VerticalContentAlignment="Center"/>
+                                                    <Label Content="{Binding MethodType}" Grid.Column="2" VerticalContentAlignment="Center" HorizontalContentAlignment="Center">
+                                                        <Label.Style>
+                                                            <Style TargetType="Label">
+                                                                <Setter Property="Background" Value="LightCoral"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding Content,RelativeSource={RelativeSource Mode=Self}}" Value="{x:Static local:MethodType.GET}">
+                                                                        <Setter Property="Background" Value="LightGreen"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Label.Style>
+                                                    </Label>
+                                                    <Grid Grid.Column="3">
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Button Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent">
+                                                            <Canvas Width="10" Height="10">
+                                                                <Polygon Points="9,0 10,1 1,10 0,9" StrokeThickness="1" Stroke="Black"/>
+                                                            </Canvas>
+                                                        </Button>
+                                                        <Button Grid.Column="1" Width="30" BorderThickness="0" Cursor="Hand" Background="Transparent" Command="{x:Static c:CommandLibrary.DeleteItem}" CommandParameter="{Binding}">
+                                                            <Canvas Width="10" Height="10">
+                                                                <Line X1="0" X2="10" Y1="0" Y2="10" StrokeThickness="2" Stroke="Red"/>
+                                                                <Line X1="10" X2="0" Y1="0" Y2="10" StrokeThickness="2" Stroke="Red"/>
+                                                            </Canvas>
+                                                        </Button>
+                                                    </Grid>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </ScrollViewer>
+                            </Grid>
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type local:QueryCollectionNode}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid>
+                                    <Label Content="{Binding Name}" VerticalContentAlignment="Center" FontWeight="Bold"/>
+                                    <Button Grid.Column="1" Content="Edit" Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent" Width="80" HorizontalAlignment="Right" Padding="0"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <TextBlock Text="{Binding Query}"/>
+                                    </ScrollViewer>
                                 </Grid>
                             </Grid>
-                        </Grid>
-                    </DataTemplate>
-                </ContentControl.Resources>
-            </ContentControl>
-        </Grid>
+                        </DataTemplate>
+                        <DataTemplate DataType="{x:Type local:QueryElementNode}">
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="30"/>
+                                    <RowDefinition Height="100"/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+                                <Grid>
+                                    <Label Content="{Binding Name}" VerticalContentAlignment="Center" FontWeight="Bold"/>
+                                    <Button Grid.Column="1" Content="Edit" Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent" Width="80" HorizontalAlignment="Right" Padding="0"/>
+                                </Grid>
+                                <Grid Grid.Row="1">
+                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                        <TextBlock Text="{Binding Query}"/>
+                                    </ScrollViewer>
+                                </Grid>
+                                <Grid Grid.Row="2">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="30"/>
+                                            <RowDefinition/>
+                                        </Grid.RowDefinitions>
+                                        <Button Grid.Column="1" Content="New Attribute" Command="{x:Static c:CommandLibrary.NewAttributeNode}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent" Width="100" HorizontalAlignment="Right" Padding="0"/>
+                                        <ItemsControl ItemsSource="{Binding Attributes}" Grid.Row="1">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate DataType="{x:Type local:QueryAttributeNode}">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition/>
+                                                            <ColumnDefinition Width="30"/>
+                                                            <ColumnDefinition Width="30"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <Label Content="{Binding Name}"/>
+                                                        <Button Grid.Column="1" Command="{x:Static c:CommandLibrary.AddEditViewModel}" CommandParameter="{Binding}" Cursor="Hand" BorderThickness="0" Background="Transparent">
+                                                            <Canvas Width="10" Height="10">
+                                                                <Polygon Points="9,0 10,1 1,10 0,9" StrokeThickness="1" Stroke="Black"/>
+                                                            </Canvas>
+                                                        </Button>
+                                                        <Button Grid.Column="2" Width="30" BorderThickness="0" Cursor="Hand" Background="Transparent" Command="{x:Static c:CommandLibrary.DeleteItem}" CommandParameter="{Binding}">
+                                                            <Canvas Width="10" Height="10">
+                                                                <Line X1="0" X2="10" Y1="0" Y2="10" StrokeThickness="2" Stroke="Red"/>
+                                                                <Line X1="10" X2="0" Y1="0" Y2="10" StrokeThickness="2" Stroke="Red"/>
+                                                            </Canvas>
+                                                        </Button>
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </Grid>
+                                </Grid>
+                            </Grid>
+                        </DataTemplate>
+                    </ContentControl.Resources>
+                </ContentControl>
+                <GridSplitter Grid.Column="1" HorizontalAlignment="Center" Width="3"/>
+            </Grid>
+        </Border>
         <Grid Grid.Row="1" Background="Black">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
-
-
             <Grid Grid.ColumnSpan="2" Background="Black">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Margin" Value="0"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsUpdateLayerOpen, Source={x:Static local:Scraper.ModalInstance}}" Value="True">
+                            <DataTrigger Binding="{Binding IsUpdateLayerOpen, Source={x:Static local:Scraper.LayerInstance}}" Value="True">
                                 <Setter Property="Margin" Value="0,-300,0,0"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -399,7 +405,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition Width="100"/>
                     </Grid.ColumnDefinitions>
-                    <Button BorderThickness="0" Padding="10,0" Background="Transparent" Cursor="Hand" Command="{Binding OpenUpdateLayer, Source={x:Static local:Scraper.ModalInstance}}" Foreground="White" HorizontalContentAlignment="Left">
+                    <Button BorderThickness="0" Padding="10,0" Background="Transparent" Cursor="Hand" Command="{x:Static c:CommandLibrary.OpenUpdateLayer}" Foreground="White" HorizontalContentAlignment="Left">
                         <Button.Content>
                             <StackPanel Orientation="Horizontal">
                                 <Label Foreground="White" Content="Current Update Id :"/>
@@ -467,7 +473,7 @@
                             <ColumnDefinition Width="45"/>
                         </Grid.ColumnDefinitions>
                         <Label Content="{Binding Name, Source={x:Static local:Scraper.ModalInstance}}" Margin="5,0,0,0" VerticalContentAlignment="Center" FontWeight="Bold"/>
-                        <Button Style="{DynamicResource Closebutton}" Foreground="Black" Grid.Column="1" Content="✖" BorderThickness="0"  Command="{Binding CloseLayer, Source={x:Static local:Scraper.ModalInstance}}" IsEnabled="{Binding CanClose, Source={x:Static local:Scraper.ModalInstance}}"/>
+                        <Button Style="{DynamicResource Closebutton}" Foreground="Black" Grid.Column="1" Content="✖" BorderThickness="0"  Command="{x:Static c:CommandLibrary.CloseLayer}" IsEnabled="{Binding CanClose, Source={x:Static local:Scraper.ModalInstance}}"/>
                     </Grid>
 
                     <ContentControl Grid.Row="1" Margin="10" Content="{Binding Content, Source={x:Static local:Scraper.ModalInstance}}">
@@ -481,11 +487,16 @@
                             <DataTemplate DataType="{x:Type local:URLDeconstructor}">
                                 <local:URL/>
                             </DataTemplate>
+                            <DataTemplate DataType="{x:Type local:JsonResults}">
+                                <m:Results/>
+                            </DataTemplate>
                         </ContentControl.Resources>
                     </ContentControl>
                 </Grid>
             </Border>
 
         </Grid>
+            
     </Grid>
+    
 </UserControl>

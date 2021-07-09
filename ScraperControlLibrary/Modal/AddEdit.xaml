@@ -36,8 +36,8 @@
                                         <Setter Property="Height" Value="30"/>
                                         <Setter Property="ContentTemplate">
                                             <Setter.Value>
-                                                <DataTemplate >
-                                                    <TextBox Text="{Binding Value, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  Padding="5">
+                                                <DataTemplate DataType="{x:Type local:Carrier}">
+                                                    <TextBox IsEnabled="{Binding IsEditable}" Text="{Binding Value, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}"  Padding="5">
                                                         <TextBox.Style>
                                                             <Style TargetType="TextBox">
                                                                 <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -59,8 +59,8 @@
                                             <DataTrigger Binding="{Binding PropertyType.IsEnum}" Value="True">
                                                 <Setter Property="ContentTemplate">
                                                     <Setter.Value>
-                                                        <DataTemplate>
-                                                            <ComboBox SelectedItem="{Binding Value, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Value, Converter={x:Static local:AddEdit.EnumExtractor},UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Padding="5,0"/>
+                                                        <DataTemplate DataType="{x:Type local:Carrier}">
+                                                            <ComboBox IsEnabled="{Binding IsEditable}" SelectedItem="{Binding Value, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Value, Converter={x:Static local:AddEdit.EnumExtractor},UpdateSourceTrigger=PropertyChanged}" VerticalContentAlignment="Center" Padding="5,0"/>
                                                         </DataTemplate>
                                                     </Setter.Value>
                                                 </Setter>
@@ -68,8 +68,8 @@
                                             <DataTrigger Binding="{Binding PropertyType}" Value="{x:Type system:Boolean}">
                                                 <Setter Property="ContentTemplate">
                                                     <Setter.Value>
-                                                        <DataTemplate>
-                                                            <ToggleButton IsChecked="{Binding Value}">
+                                                        <DataTemplate DataType="{x:Type local:Carrier}">
+                                                            <ToggleButton IsChecked="{Binding Value}" IsEnabled="{Binding IsEditable}">
                                                                 <ToggleButton.Style>
                                                                     <Style TargetType="ToggleButton">
                                                                         <Setter Property="Content" Value="False"/>
@@ -88,9 +88,9 @@
                                             <DataTrigger Binding="{Binding PropertyType}" Value="{x:Type system:Double}">
                                                 <Setter Property="ContentTemplate">
                                                     <Setter.Value>
-                                                        <DataTemplate>
+                                                        <DataTemplate DataType="{x:Type local:Carrier}">
                                                             <Grid>
-                                                                <local:NumberInput InputValue="{Binding DataContext.Value,RelativeSource={RelativeSource AncestorType=Grid},Mode=TwoWay}"/>
+                                                                <local:NumberInput IsEnabled="{Binding IsEditable}" InputValue="{Binding DataContext.Value,RelativeSource={RelativeSource AncestorType=Grid},Mode=TwoWay}"/>
                                                             </Grid>
                                                         </DataTemplate>
                                                     </Setter.Value>
